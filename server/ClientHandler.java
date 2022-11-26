@@ -60,34 +60,6 @@ public class ClientHandler implements Runnable {
     //called by Client
     public void removeClient() {sendMessageToServer(name + "| has left the game");}
 
-    public void eliminateClient() {
-        sendMessageToServer(name + "| was eliminated");
-        this.eliminated = true;
-        this.spectate();
-    }
-
-    public void spectate() {
-        while (!this.eliminated) {
-            sendMessageToServer(name + "| stats request");
-            try {
-                Thread.sleep(30000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
-
-    public void statsToServer(String message) {
-        sendMessageToServer(message);
-    }
-
-
-
-    //called by Server
-    public void statsToClient(String message) {
-        sendMessageToClient(message);
-    }
-
     public void closeEverything(Socket socket, BufferedReader reader, BufferedWriter writer) {
         removeClient();
         try {
