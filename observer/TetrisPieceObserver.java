@@ -6,6 +6,7 @@ public class TetrisPieceObserver {
     private ArrayList<TetrisPiece> pieces = new ArrayList<>();
 
     public void update(String[] pieces) {
+        this.pieces.clear();
         for(String piece : pieces) {
             this.pieces.add(new TetrisPiece(piece));
         }

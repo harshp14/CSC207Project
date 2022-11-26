@@ -16,7 +16,7 @@ public class TetrisPieceObservable {
     public void removePiece() {pieces.remove(0);}
 
     //See if a new piece needs to be computed
-    public String getPieces(int index) {
-        return pieces.toString();
+    public String getPieces() {
+        return String.join(",", this.pieces);
     }
 }
