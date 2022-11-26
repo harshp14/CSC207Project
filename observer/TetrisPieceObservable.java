@@ -15,9 +15,8 @@ public class TetrisPieceObservable {
     //When everyones index is greater then 0, remove the first piece to save space
     public void removePiece() {pieces.remove(0);}
 
-    //Get all computed pieces
+    //See if a new piece needs to be computed
     public String getPieces(int index) {
-        if (pieces.size() > index) {addPiece();}
         return pieces.toString();
     }
 }
