@@ -51,5 +51,19 @@ public class Server {
         //Do something with this input
         System.out.println(input);
     }
+    //Game Management
+    public void computePiece() {
+        //Create new tetris piece
+        TetrisPiece piece = new TetrisPiece();
 
+        //Add it to observable list
+        this.observable.addPiece(piece);
+    }
+
+    public void startGame() {
+        for (int i = 0; i < this.bufferSize; i++) {
+            TetrisPiece piece = new TetrisPiece(); //Create new tetris piece
+            this.observable.addPiece(piece); //Add it to observable list
+        }
+    }
 }
