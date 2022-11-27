@@ -10,6 +10,7 @@ import java.io.*;
 
 
 
+
 public class Client extends Application {
     private Socket socket;
     private BufferedReader reader;
@@ -17,8 +18,10 @@ public class Client extends Application {
     private String name;
     private Integer index = 0;
 
-    TetrisModel model;
-    TetrisView view;
+    private TetrisModel model;
+    private TetrisView view;
+
+    private Observer harsh;
 
     public Client(Socket socket, String name) {
         try {
@@ -29,6 +32,8 @@ public class Client extends Application {
         }
         catch (IOException e) {closeEverything();}
     }
+
+
 
     public void listener() {
         new Thread(new Runnable() {
@@ -56,19 +61,24 @@ public class Client extends Application {
         catch (IOException e) {e.printStackTrace(); }
     }
 
-    public static void main(String[] args) throws IOException {
-          launch(args);
+    public static void run(String[] args){
+        launch(args);
+    }
 
-//        Scanner scanner = new Scanner(System.in);
-//        System.out.println("Please enter a username");
-//        String username = scanner.nextLine();
-//
-//        Socket socket = new Socket("localhost", 4200);
-//        Client client = new Client(socket, username);
-//        scanner.close();
-//        client.listener();
-//        client.sendName();
-//        client.getNextPiece();
+
+    public static void main(String[] args) throws IOException {
+
+
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("Please enter a username");
+        String username = scanner.nextLine();
+
+        Socket socket = new Socket("localhost", 4200);
+        Client client = new Client(socket, username);
+        scanner.close();
+        client.listener();
+        client.sendName();
+        //client.getNextPiece();
     }
 
     @Override
@@ -101,7 +111,7 @@ public class Client extends Application {
 
     public void getsEliminated(){
         try {
-            writer.write(this.name + "|eliminated");
+            writer.write("eliminated|");
             writer.newLine();
             writer.flush();
         }
@@ -110,10 +120,10 @@ public class Client extends Application {
 
 
 
-    public void getNextPiece() {
+    public void placedPiece() {
         this.index += 1;
         try {
-            writer.write(this.name + "|GetNextPiece" + this.index);
+            writer.write("placedPiece|" + this.index);
             writer.newLine();
             writer.flush();
         }

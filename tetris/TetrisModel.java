@@ -1,4 +1,5 @@
 package tetris;
+import client.Client;
 
 import java.io.*;
 import java.util.Random;
@@ -130,7 +131,8 @@ public class TetrisModel implements Serializable {
         int result = setCurrent(piece, px, py);
 
         if (result > TetrisBoard.ADD_ROW_FILLED) {
-            stopGame(); //oops, we lost.
+            stopGame();//oops, we lost.
+
         }
 
     }
