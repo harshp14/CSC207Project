@@ -1,14 +1,24 @@
 package client;
+import javafx.application.Application;
+import javafx.stage.Stage;
+import tetris.TetrisModel;
+import tetris.TetrisView;
+
 import java.util.*;
 import java.net.*;
 import java.io.*;
 
-public class Client {
+
+
+public class Client extends Application {
     private Socket socket;
     private BufferedReader reader;
     private BufferedWriter writer;
     private String name;
     private Integer index = 0;
+
+    TetrisModel model;
+    TetrisView view;
 
     public Client(Socket socket, String name) {
         try {
@@ -47,16 +57,25 @@ public class Client {
     }
 
     public static void main(String[] args) throws IOException {
-        Scanner scanner = new Scanner(System.in);
-        System.out.println("Please enter a username");
-        String username = scanner.nextLine();
+          launch(args);
 
-        Socket socket = new Socket("localhost", 4200);
-        Client client = new Client(socket, username);
-        scanner.close();
-        client.listener();
-        client.sendName();
-        client.getNextPiece();
+//        Scanner scanner = new Scanner(System.in);
+//        System.out.println("Please enter a username");
+//        String username = scanner.nextLine();
+//
+//        Socket socket = new Socket("localhost", 4200);
+//        Client client = new Client(socket, username);
+//        scanner.close();
+//        client.listener();
+//        client.sendName();
+//        client.getNextPiece();
+    }
+
+    @Override
+    public void start(Stage primaryStage) {
+        this.model = new TetrisModel(); // create a model
+        this.view = new TetrisView(model, primaryStage); //tie the model to the view
+        this.model.startGame(); //begin
     }
 
     public void sendName(){
@@ -69,6 +88,28 @@ public class Client {
 
     }
 
+
+    public void update(String message){
+        try {
+            int temp = message.indexOf("|");
+            writer.write(this.name + message.substring(temp + 1));
+            writer.newLine();
+            writer.flush();
+        }
+        catch (Exception e) {closeEverything();}
+    }
+
+    public void getsEliminated(){
+        try {
+            writer.write(this.name + "|eliminated");
+            writer.newLine();
+            writer.flush();
+        }
+        catch (Exception e) {closeEverything();}
+    }
+
+
+
     public void getNextPiece() {
         this.index += 1;
         try {
@@ -78,4 +119,10 @@ public class Client {
         }
         catch (Exception e) {closeEverything();}
     }
+
+
+
+
+
+
 }
