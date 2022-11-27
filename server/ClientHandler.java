@@ -27,9 +27,12 @@ public class ClientHandler implements Runnable {
         }
         //Disconnect client if there is an error connecting to the server
         catch (IOException e){closeEverything(socket, reader, writer);}
-
     }
 
+    /**
+     * Send messages between the client and server while the client's game is running.
+     * If it isn't, close the connection.
+     */
     @Override
     public void run() {
         String messageFromClient;
@@ -47,6 +50,9 @@ public class ClientHandler implements Runnable {
         }
     }
 
+    /**
+     * Close the connection between the client and the server.
+     */
     public void closeEverything(Socket socket, BufferedReader reader, BufferedWriter writer) {
         removeClient();
         try {
@@ -58,10 +64,15 @@ public class ClientHandler implements Runnable {
         catch (IOException e) {e.printStackTrace(); }
     }
 
-    //communication methods
-    private void sendMessageToServer(String message) {this.server.readInput(message);}
+    /**
+     * Attaches the client's name to its message and sends the message to the server.
+     */
+    public void sendMessageToServer(String message) { this.server.readInput(this.name + ":" + message);}
 
-    private void sendMessageToClient(String message) {
+    /**
+     * Sends a message from the server to the client as-is.
+     */
+    public void sendMessageToClient(String message) {
         try {
             writer.write(message);
             writer.newLine();
@@ -70,44 +81,9 @@ public class ClientHandler implements Runnable {
         catch (IOException e) {closeEverything(this.socket, this.reader, this.writer);}
     }
 
-    //called by Client
-    public void statsToServer(String message) {
-        sendMessageToServer(message);
-    }
-
-    public void checkForNewPiece() { //combine with statsToServer? they get called together anyway
-        sendMessageToServer(name + "| piece placed");
-    }
-
-    public void eliminateClient() {
-        sendMessageToServer(name + "| was eliminated");
-        this.eliminated = true;
-        this.spectate();
-    }
-
-    public void spectate() {
-        while (!this.eliminated) {
-            sendMessageToServer(name + "| stats request");
-            try {
-                Thread.sleep(30000);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
-    }
-
+    /**
+     * Sends a message to the server that the client has left the game.
+     */
     public void removeClient() {sendMessageToServer(name + "| has left the game");}
 
-    //called by Server
-    public void gameInfoToClient(String message) {
-        sendMessageToClient(message);
-    }
-
-    public void pieceToClient(String message) {
-        sendMessageToClient(message);
-    }
-
-    public void statsToClient(String message) {
-        sendMessageToClient(message);
-    }
 }
