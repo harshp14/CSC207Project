@@ -51,5 +51,4 @@ public class Server {
         //Do something with this input
         System.out.println(input);
     }
-
 }
