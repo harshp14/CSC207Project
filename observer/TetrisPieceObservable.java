@@ -8,7 +8,7 @@ public class TetrisPieceObservable {
     String[] possiblePieces = {TetrisPiece.STICK_STR, TetrisPiece.L1_STR, TetrisPiece.L2_STR, TetrisPiece.PYRAMID_STR, TetrisPiece.S1_STR, TetrisPiece.S2_STR, TetrisPiece.SQUARE_STR};
 
     /**
-     * Create a new tetris piece and add to the pieces array 
+     * Create a new tetris piece and add to the pieces array
      */
     public void addPiece() {
         this.pieces.add(possiblePieces[(new Random().nextInt(7))]);
@@ -25,4 +25,9 @@ public class TetrisPieceObservable {
     public String getPieces() {
         return String.join(",", this.pieces);
     }
+
+    /*
+     * Checks if a new piece needs to be added to the array
+     */
+    public void checkSize(int index) {if (pieces.size() - 2  < index) {addPiece();}}
 }

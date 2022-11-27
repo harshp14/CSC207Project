@@ -50,4 +50,23 @@ public class observerTests {
         //Ensure the first piece was the one that was removed
         assertEquals(observer.getPieces().get(0), piece);
     }
+
+    @Test
+    void checkSizeTest() {
+        //Create observable with three pieces
+        TetrisPieceObservable observable = new TetrisPieceObservable();
+        observable.addPiece();
+        observable.addPiece();
+        observable.addPiece();
+
+        //Tell the observable that a player is currently on the second piece
+        observable.checkSize(2);
+
+        assertEquals(observable.pieces.size(), 4);
+
+        //Tell the observable that a player is on the first piece
+        observable.checkSize(0);
+
+        assertEquals(observable.pieces.size(), 4);
+    }
 }
