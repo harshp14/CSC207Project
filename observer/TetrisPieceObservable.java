@@ -7,15 +7,21 @@ public class TetrisPieceObservable {
     ArrayList<String> pieces = new ArrayList<>();
     String[] possiblePieces = {TetrisPiece.STICK_STR, TetrisPiece.L1_STR, TetrisPiece.L2_STR, TetrisPiece.PYRAMID_STR, TetrisPiece.S1_STR, TetrisPiece.S2_STR, TetrisPiece.SQUARE_STR};
 
-    //Whenever someone needs a new piece that hasn't already been computed, compute it for them
+    /**
+     * Create a new tetris piece and add to the pieces array 
+     */
     public void addPiece() {
         this.pieces.add(possiblePieces[(new Random().nextInt(7))]);
     }
 
-    //When everyones index is greater then 0, remove the first piece to save space
+    /**
+     * Remove the first piece from the pieces array (Save memory)
+    */
     public void removePiece() {pieces.remove(0);}
 
-    //See if a new piece needs to be computed
+    /*
+     * Return all of the pieces for updating the observer
+     */
     public String getPieces() {
         return String.join(",", this.pieces);
     }
