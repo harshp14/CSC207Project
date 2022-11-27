@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.*;
+import java.util.Objects;
 
 public class ClientHandler implements Runnable {
     private Socket socket;
@@ -31,7 +32,6 @@ public class ClientHandler implements Runnable {
 
     /**
      * Send messages between the client and server while the client's game is running.
-     * If it isn't, close the connection.
      */
     @Override
     public void run() {
@@ -65,12 +65,18 @@ public class ClientHandler implements Runnable {
     }
 
     /**
-     * Attaches the client's name to its message and sends the message to the server.
+     * Attaches the client's name to a message and sends the message to the server.
+     * If the message is that the client is eliminated, starts spectating.
      */
-    public void sendMessageToServer(String message) { this.server.readInput(this.name + ":" + message);}
+    public void sendMessageToServer(String message) {
+        this.server.readInput(this.name + ":" + message);
+        if (Objects.equals(message, "eliminated|")) {
+            this.spectate();
+        }
+    }
 
     /**
-     * Sends a message from the server to the client as-is.
+     * Sends a message to the client as-is.
      */
     public void sendMessageToClient(String message) {
         try {
@@ -79,6 +85,21 @@ public class ClientHandler implements Runnable {
             writer.flush();
         }
         catch (IOException e) {closeEverything(this.socket, this.reader, this.writer);}
+    }
+
+    /**
+     * Set the status of the client to eliminated, then request stats from the server every 30 seconds.
+     */
+    public void spectate() {
+        this.eliminated = true;
+        while (!this.eliminated) {
+            sendMessageToServer(name + ":sendStats|");
+            try {
+                Thread.sleep(30000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 
     /**
