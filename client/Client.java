@@ -120,6 +120,10 @@ public class Client extends Application {
 
 
 
+    /*
+     * Notifies the server that a piece was placed, and updates score accordingly
+     * @param
+     */
     public void placedPiece(int index, int score, int rowsCleared) {
         try {
             writer.write("placedPiece|" + Integer.toString(index) + "|" + Integer.toString(score) + "|" + Integer.toString(rowsCleared));
