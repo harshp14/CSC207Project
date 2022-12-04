@@ -1,6 +1,7 @@
 package client;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import observer.TetrisPieceObserver;
 import tetris.TetrisModel;
 import tetris.TetrisView;
 
@@ -16,12 +17,11 @@ public class Client extends Application {
     private BufferedReader reader;
     private BufferedWriter writer;
     private String name;
-    private Integer index = 0;
 
     private TetrisModel model;
     private TetrisView view;
 
-    private Observer harsh;
+    public TetrisPieceObserver observer;
 
     public Client(Socket socket, String name) {
         try {
@@ -83,7 +83,7 @@ public class Client extends Application {
 
     @Override
     public void start(Stage primaryStage) {
-        this.model = new TetrisModel(); // create a model
+        this.model = new TetrisModel(this); // create a model
         this.view = new TetrisView(model, primaryStage); //tie the model to the view
         this.model.startGame(); //begin
     }
@@ -120,19 +120,16 @@ public class Client extends Application {
 
 
 
-    public void placedPiece() {
-        this.index += 1;
+    /*
+     * Notifies the server that a piece was placed, and updates score accordingly
+     * @param
+     */
+    public void placedPiece(int index, int score, int rowsCleared) {
         try {
-            writer.write("placedPiece|" + this.index);
+            writer.write("placedPiece|" + Integer.toString(index) + "|" + Integer.toString(score) + "|" + Integer.toString(rowsCleared));
             writer.newLine();
             writer.flush();
         }
         catch (Exception e) {closeEverything();}
     }
-
-
-
-
-
-
 }
