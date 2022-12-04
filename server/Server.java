@@ -17,6 +17,8 @@ public class Server {
 
     private HashMap<String, Integer> playerIndicies = new HashMap<>();
 
+    StatsStorage stats = new StatsStorage();
+
     /**
      * Starts the game and lets each client member know that the game has begun.
      */
@@ -48,7 +50,6 @@ public class Server {
      * Sends the stats of the client to the client, sends <username>:sendStats|
      */
     public void sendStats(){
-
     }
 
     //Server Management
@@ -68,6 +69,7 @@ public class Server {
                 Socket socket = serverSocket.accept();
                 System.out.println("New connection");
                 this.clients.add(new ClientHandler(socket, this));
+                this.stats.addPlayer(this.clients.get(clients.size()-1).getName());
                 Thread thread = new Thread(this.clients.get(clients.size()-1));
                 thread.start();
             }
