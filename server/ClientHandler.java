@@ -69,9 +69,15 @@ public class ClientHandler implements Runnable {
      * If the message is that the client is eliminated, starts spectating.
      */
     public void sendMessageToServer(String message) {
-        this.server.readInput(this.name + ":" + message);
-        if (Objects.equals(message, "eliminated|")) {
-            this.spectate();
+        if (message.startsWith("updateStats|")) {
+            this.server.stats.updateStats(this.name + ":" + message);
+        } else if (message.startsWith("placedPiece")) {
+            this.server.stats.placedPiece(this.name);
+        } else {
+            this.server.readInput(this.name + ":" + message);
+            if (Objects.equals(message, "eliminated|")) {
+                this.spectate();
+            }
         }
     }
 
@@ -90,10 +96,11 @@ public class ClientHandler implements Runnable {
     /**
      * Set the status of the client to eliminated, then request stats from the server every 30 seconds.
      */
+    //sends client "allStats|(stats)"
     public void spectate() {
         this.eliminated = true;
         while (!this.eliminated) {
-            sendMessageToServer(name + ":sendStats|");
+            sendMessageToClient("allStats|" + this.server.stats.getAllStats());
             try {
                 Thread.sleep(30000);
             } catch (InterruptedException e) {
@@ -106,5 +113,10 @@ public class ClientHandler implements Runnable {
      * Sends a message to the server that the client has left the game.
      */
     public void removeClient() {sendMessageToServer(name + "| has left the game");}
+
+    /**
+     * Returns client name.
+     */
+    public String getName() {return this.name;}
 
 }
