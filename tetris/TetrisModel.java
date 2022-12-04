@@ -23,6 +23,9 @@ public class TetrisModel implements Serializable {
     protected int currentX, newX;
     protected int currentY, newY;
 
+    private int index = 0;
+    private Client client;
+
     // State of the game
     protected boolean gameOn;	// true if we are playing
     protected Random random;	 // the random generator for new pieces
@@ -41,11 +44,12 @@ public class TetrisModel implements Serializable {
     /**
      * Constructor for a tetris model
      */
-    public TetrisModel() {
+    public TetrisModel(Client clientP) {
         board = new TetrisBoard(WIDTH, HEIGHT + BUFFERZONE);
         pieces = TetrisPiece.getPieces(); //initialize board and pieces
         autoPilotMode = false;
         gameOn = false;
+        this.client = clientP;
         pilot = new AutoPilot();
     }
 
@@ -141,10 +145,7 @@ public class TetrisModel implements Serializable {
      * Pick next piece to put in play on board 
      */
     private TetrisPiece pickNextPiece() {
-        int pieceNum;
-        pieceNum = (int) (pieces.length * random.nextDouble());
-        TetrisPiece piece	 = pieces[pieceNum];
-        return(piece);
+        return client.observer.getPiece(index);
     }
 
     /**
@@ -196,8 +197,8 @@ public class TetrisModel implements Serializable {
 
     /**
      * Get width
-     * 
-     * @return height (with buffer at top accounted for) 
+     *
+     * @return height (with buffer at top accounted for)
      */
     public double getHeight() {
         return HEIGHT + BUFFERZONE;
@@ -261,12 +262,12 @@ public class TetrisModel implements Serializable {
     }
 
     /**
-     * Execute a given move.  This will compute the new position of the active piece, 
+     * Execute a given move.  This will compute the new position of the active piece,
      * set the piece to this location if possible.  If lines are completed
      * as a result of the move, the lines will be cleared from the board,
      * and the board will be updated.  Scores will be added to the player's
      * total based on the number of rows cleared.
-     * 
+     *
      * @param verb the type of move to execute
      */
     private void executeMove(MoveType verb) {
@@ -301,11 +302,13 @@ public class TetrisModel implements Serializable {
 
             // if the board is too tall, we've lost!
             if (board.getMaxHeight() > board.getHeight() - BUFFERZONE) {
-                stopGame();
+                client.getsEliminated();
             }
 
             // Otherwise, add a new piece and keep playing
             else {
+                client.placedPiece(this.index, this.score, cleared);
+                this.index += 1;
                 addNewPiece();
             }
         }
