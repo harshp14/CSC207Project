@@ -3,7 +3,7 @@ package server;
 import java.util.HashMap;
 
 public class StatsStorage {
-    private HashMap<String, HashMap<String, Integer>> stats;
+    HashMap<String, HashMap<String, Integer>> stats;
 
     public StatsStorage() {
         this.stats = new HashMap<String, HashMap<String, Integer>>();
@@ -21,11 +21,11 @@ public class StatsStorage {
     /**
      * Take a string sent by the client and update stats accordingly.
      */
-    /*message from client is "playerName:updateStats|rowsCleared,piecesPlaced"*/
+    /*message from client is "playerName:updateStats|rowsCleared|piecesPlaced"*/
     public void updateStats(String message) {
-        String[] splitMessage = message.split(":updateStats");
+        String[] splitMessage = message.split(":updateStats\\|");
         String playerName = splitMessage[0];
-        splitMessage = splitMessage[1].split(",");
+        splitMessage = splitMessage[1].split("\\|");
         this.stats.get(playerName).put("rowsCleared", Integer.valueOf(splitMessage[0]));
         this.stats.get(playerName).put("piecesPlaced", Integer.valueOf(splitMessage[1]));
     }
@@ -34,7 +34,7 @@ public class StatsStorage {
      * Update stats of a single player who placed one piece.
      */
     public void placedPiece(String playerName) { //TODO similar for rowsCleared?
-        this.stats.get(playerName).put("rowsCleared", this.stats.get(playerName).get("rowsCleared") + 1);
+        this.stats.get(playerName).put("piecesPlaced", this.stats.get(playerName).get("piecesPlaced") + 1);
     }
 
     /**

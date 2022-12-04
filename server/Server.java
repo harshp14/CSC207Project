@@ -35,7 +35,7 @@ public class Server {
      * Check if any new pieces need to be added or removed from the observable
      */
     public void placedPiece(){
-        this.observable.checkSize();
+        this.observable.checkSize(0);
 
     }
 
