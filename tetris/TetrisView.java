@@ -29,6 +29,7 @@ import javafx.util.Duration;
  */
 public class TetrisView {
 
+
     TetrisModel model; //reference to model
     Stage stage;
     Colour colour = new Colour();
