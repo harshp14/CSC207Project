@@ -22,6 +22,10 @@ public class TetrisModel implements Serializable {
 
     protected int currentX, newX;
     protected int currentY, newY;
+    public String stats = "Eliminated";
+
+    public int index = 0;
+    private Client client;
 
     // State of the game
     protected boolean gameOn;	// true if we are playing
@@ -41,11 +45,12 @@ public class TetrisModel implements Serializable {
     /**
      * Constructor for a tetris model
      */
-    public TetrisModel() {
+    public TetrisModel(Client clientP) {
         board = new TetrisBoard(WIDTH, HEIGHT + BUFFERZONE);
         pieces = TetrisPiece.getPieces(); //initialize board and pieces
         autoPilotMode = false;
         gameOn = false;
+        this.client = clientP;
         pilot = new AutoPilot();
     }
 
@@ -72,7 +77,7 @@ public class TetrisModel implements Serializable {
 
     /**
      * Compute New Position of piece in play based on move type
-     * 
+     *
      * @param verb type of move to account for
      */
     public void computeNewPosition(MoveType verb) {
@@ -112,7 +117,7 @@ public class TetrisModel implements Serializable {
     }
 
     /**
-     * Put new piece in play on board 
+     * Put new piece in play on board
      */
     public void addNewPiece() {
         count++;
@@ -138,22 +143,19 @@ public class TetrisModel implements Serializable {
     }
 
     /**
-     * Pick next piece to put in play on board 
+     * Pick next piece to put in play on board
      */
     private TetrisPiece pickNextPiece() {
-        int pieceNum;
-        pieceNum = (int) (pieces.length * random.nextDouble());
-        TetrisPiece piece	 = pieces[pieceNum];
-        return(piece);
+        return client.observer.getPiece(index);
     }
 
     /**
      * Attempt to set the piece at a given board position
-     * 
+     *
      * @param piece piece to place
      * @param x placement position, x
      * @param y placement position, y
-     * 
+     *
      * @return integer defining if placement is OK or not (see Board.java)
      */
     public int setCurrent(TetrisPiece piece, int x, int y) {
@@ -187,8 +189,8 @@ public class TetrisModel implements Serializable {
 
     /**
      * Get width
-     * 
-     * @return width 
+     *
+     * @return width
      */
     public double getWidth() {
         return WIDTH;
@@ -196,8 +198,8 @@ public class TetrisModel implements Serializable {
 
     /**
      * Get width
-     * 
-     * @return height (with buffer at top accounted for) 
+     *
+     * @return height (with buffer at top accounted for)
      */
     public double getHeight() {
         return HEIGHT + BUFFERZONE;
@@ -205,7 +207,7 @@ public class TetrisModel implements Serializable {
 
     /**
      * Get width
-     * 
+     *
      * @return score of game
      */
     public int getScore() {
@@ -214,7 +216,7 @@ public class TetrisModel implements Serializable {
 
     /**
      * Get width
-     * 
+     *
      * @return number of pieces placed
      */
     public int getCount() {
@@ -261,12 +263,12 @@ public class TetrisModel implements Serializable {
     }
 
     /**
-     * Execute a given move.  This will compute the new position of the active piece, 
+     * Execute a given move.  This will compute the new position of the active piece,
      * set the piece to this location if possible.  If lines are completed
      * as a result of the move, the lines will be cleared from the board,
      * and the board will be updated.  Scores will be added to the player's
      * total based on the number of rows cleared.
-     * 
+     *
      * @param verb the type of move to execute
      */
     private void executeMove(MoveType verb) {
@@ -301,11 +303,14 @@ public class TetrisModel implements Serializable {
 
             // if the board is too tall, we've lost!
             if (board.getMaxHeight() > board.getHeight() - BUFFERZONE) {
+                client.getsEliminated();
                 stopGame();
             }
 
             // Otherwise, add a new piece and keep playing
             else {
+                client.placedPiece(this.index, this.score, cleared);
+                this.index += 1;
                 addNewPiece();
             }
         }
@@ -322,7 +327,7 @@ public class TetrisModel implements Serializable {
 
     /**
      * Save the current state of the game to a file
-     * 
+     *
      * @param file pointer to file to write to
      */
     public void saveModel(File file) {

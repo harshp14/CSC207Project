@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 import observer.TetrisPieceObservable;
+import server.ClientHandler;
+import server.StatsStorage;
 import tetris.TetrisPiece;
 
 
@@ -20,22 +22,43 @@ public class Server {
     StatsStorage stats = new StatsStorage();
 
     /**
+     * Updates each observer with the new tetris points
+     */
+    public void updateObservers(boolean decrementIndex) {
+        for (ClientHandler client : clients) {
+            client.sendMessageToClient("update|" + this.observable.getPieces() + "|" + decrementIndex);
+        }
+    }
+
+    /**
      * Starts the game and lets each client member know that the game has begun.
      */
     public void startGame() {
         this.observable.addPiece();
         this.observable.addPiece();
         this.observable.addPiece();
-        for (int i = 0; i < this.playerIndicies.size(); i++) {
-            clients.get(i).sendMessageToClient("startGame|");
+        updateObservers(false);
+        for (ClientHandler client: clients) {
+            client.sendMessageToClient("startGame|");
         }
     }
 
     /**
      * Check if any new pieces need to be added or removed from the observable
      */
-    public void placedPiece(){
-        this.observable.checkSize(0);
+    public void placedPiece(int index, String name){
+        if (this.observable.checkSize(index)) {
+            updateObservers(false);
+            playerIndicies.put(name, index);
+            for(int value: playerIndicies.values()){
+                if(value < index){
+                    return;
+                }
+            }
+            observable.removePiece();
+            updateObservers(true);
+
+        }
 
     }
 
@@ -64,12 +87,13 @@ public class Server {
         try {
             Scanner scan = new Scanner(System.in);
             System.out.println("How many players will there be for this round?");
-            int num = scan.nextInt();
+            int num = Integer.parseInt(scan.nextLine());
             for(int i = 0; i < num; i++){
                 Socket socket = serverSocket.accept();
                 System.out.println("New connection");
                 this.clients.add(new ClientHandler(socket, this));
                 this.stats.addPlayer(this.clients.get(clients.size()-1).getName());
+                playerIndicies.put(this.clients.get(clients.size()-1).getName(), 0);
                 Thread thread = new Thread(this.clients.get(clients.size()-1));
                 thread.start();
             }
@@ -94,13 +118,5 @@ public class Server {
         server.startServer();
     }
 
-    /**
-     * Process the input string as required
-     * @param input
-     */
-    public void readInput(String input) {
-        //Do something with this input
-        System.out.println(input);
-    }
 
 }

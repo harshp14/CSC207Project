@@ -23,11 +23,13 @@ public class StatsStorage {
      */
     /*message from client is "playerName:updateStats|rowsCleared|piecesPlaced"*/
     public void updateStats(String message) {
+        /*
         String[] splitMessage = message.split(":updateStats\\|");
         String playerName = splitMessage[0];
         splitMessage = splitMessage[1].split("\\|");
         this.stats.get(playerName).put("rowsCleared", Integer.valueOf(splitMessage[0]));
         this.stats.get(playerName).put("piecesPlaced", Integer.valueOf(splitMessage[1]));
+         */
     }
 
     /**

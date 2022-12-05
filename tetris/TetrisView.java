@@ -1,5 +1,6 @@
 package tetris;
 
+import client.Client;
 import decorator.*;
 import tetris.TetrisModel.MoveType;
 import javafx.animation.KeyFrame;
@@ -36,6 +37,8 @@ public class TetrisView {
     Button classicButton, deuteranopiaButton, protanomalyButton, deuteranomalyButton; //buttons for functions
     Label scoreLabel = new Label("");
     Label gameModeLabel = new Label("");
+    
+    Client client;
 
     BorderPane borderPane;
     Canvas canvas;
@@ -55,10 +58,15 @@ public class TetrisView {
      * @param stage application stage
      */
 
-    public TetrisView(TetrisModel model, Stage stage) {
+    public TetrisView(TetrisModel model, Stage stage, Client client) {
         this.model = model;
         this.stage = stage;
+        this.client = client;
         initUI();
+    }
+
+    public void updateStats(String stats){
+        scoreLabel.setText(stats);
     }
 
     /**
@@ -229,8 +237,12 @@ public class TetrisView {
      * Update score on UI
      */
     private void updateScore() {
-        if (this.paused != true) {
+        if (model.gameOn) {
             scoreLabel.setText("Score is: " + model.getScore() + "\nPieces placed:" + model.getCount());
+        }
+        
+        else {
+            scoreLabel.setText(this.client.getStats());
         }
     }
 
