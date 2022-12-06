@@ -128,7 +128,7 @@ public class TetrisModel implements Serializable {
         currentPiece = null;
 
         TetrisPiece piece = pickNextPiece();
-
+        piece = TetrisPiece.makeFastRotations(piece);
         // Center it up at the top
         int px = (board.getWidth() - piece.getWidth())/2;
         int py = board.getHeight() - piece.getHeight();
