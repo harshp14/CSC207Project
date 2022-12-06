@@ -24,11 +24,9 @@ public class StatsStorage {
      */
     /*message from client is "playerName:updateStats|rowsCleared|piecesPlaced"*/
     public void updateStats(String message) {
-<<<<<<< HEAD
         String[] splitMessage = message.split("\\|");
         this.stats.get(splitMessage[0]).put("rowsCleared", Integer.valueOf(splitMessage[2]));
         this.stats.get(splitMessage[0]).put("points", Integer.valueOf(splitMessage[1]));
-=======
         /*
         String[] splitMessage = message.split(":updateStats\\|");
         String playerName = splitMessage[0];
@@ -36,7 +34,6 @@ public class StatsStorage {
         this.stats.get(playerName).put("rowsCleared", Integer.valueOf(splitMessage[0]));
         this.stats.get(playerName).put("piecesPlaced", Integer.valueOf(splitMessage[1]));
          */
->>>>>>> c77ca23b8cf9988b28d47b9c4bbdd41152dd4bff
     }
 
     /**
