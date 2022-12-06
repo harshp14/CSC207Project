@@ -65,6 +65,10 @@ public class TetrisView {
         initUI();
     }
 
+    public void updateStats(String stats){
+        scoreLabel.setText(stats);
+    }
+
     /**
      * Initialize interface
      */
@@ -221,7 +225,10 @@ public class TetrisView {
         }
         
         else {
+<<<<<<< HEAD
             System.out.println(this.client.getStats());
+=======
+>>>>>>> c77ca23b8cf9988b28d47b9c4bbdd41152dd4bff
             scoreLabel.setText(this.client.getStats());
         }
     }

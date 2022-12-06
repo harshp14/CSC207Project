@@ -51,7 +51,10 @@ public class Server {
         if (this.observable.checkSize(index)) {
             updateObservers(false);
             playerIndicies.put(name, index);
+<<<<<<< HEAD
             /*
+=======
+>>>>>>> c77ca23b8cf9988b28d47b9c4bbdd41152dd4bff
             for(int value: playerIndicies.values()){
                 if(value < index){
                     return;
@@ -59,7 +62,10 @@ public class Server {
             }
             observable.removePiece();
             updateObservers(true);
+<<<<<<< HEAD
              */
+=======
+>>>>>>> c77ca23b8cf9988b28d47b9c4bbdd41152dd4bff
 
         }
 
@@ -119,6 +125,7 @@ public class Server {
         server.startServer();
     }
 
+<<<<<<< HEAD
     public void sendStats() {
         new Thread(new Runnable() {
             @Override
@@ -133,4 +140,7 @@ public class Server {
             }
         }).start();
     }
+=======
+
+>>>>>>> c77ca23b8cf9988b28d47b9c4bbdd41152dd4bff
 }
