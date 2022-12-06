@@ -13,24 +13,17 @@ import java.io.*;
 
 
 public class Client extends Application {
-    private Socket socket;
-    private BufferedReader reader;
-    private BufferedWriter writer;
-    private String name;
+    private static Socket socket;
+    private static BufferedReader reader;
+    private static BufferedWriter writer;
+    private static String name;
 
-    private TetrisModel model;
+    private static TetrisModel model;
     private TetrisView view;
+    public static SuperState curr;
 
-    public TetrisPieceObserver observer;
-
-    public Client(Socket socket, String name) {
-        try {
-            this.socket = socket;
-            this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            this.name = name;
-        }
-        catch (IOException e) {closeEverything();}
+    public static TetrisPieceObserver observer = new TetrisPieceObserver();
+    public Client() {
     }
 
 
@@ -41,10 +34,16 @@ public class Client extends Application {
             public void run() {
                 String message;
 
+
                 while (socket.isConnected())  {
                     try {
                         message = reader.readLine();
-                        System.out.println(message); //Print message that is received from server (Do something with it later)
+                        if(message.equals("startGame|")){
+                            model.startGame();
+                        }
+                        else {
+                            curr.listening(message);
+                        }
                     }
                     catch (IOException e) {closeEverything();}
                 }
@@ -54,43 +53,42 @@ public class Client extends Application {
 
     public void closeEverything() {
         try {
-            if (this.reader != null) {this.reader.close();}
-            if (this.writer != null) {this.writer.close();}
-            if (this.socket != null) {this.socket.close();}
+            if (reader != null) {reader.close();}
+            if (writer != null) {writer.close();}
+            if (socket != null) {socket.close();}
         }
         catch (IOException e) {e.printStackTrace(); }
-    }
-
-    public static void run(String[] args){
-        launch(args);
     }
 
 
     public static void main(String[] args) throws IOException {
 
-
         Scanner scanner = new Scanner(System.in);
         System.out.println("Please enter a username");
-        String username = scanner.nextLine();
-
-        Socket socket = new Socket("localhost", 4200);
-        Client client = new Client(socket, username);
+        name = scanner.nextLine();
+        Client client = new Client();
+        try {
+            socket = new Socket("localhost", 4200);
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        }
+        catch (IOException e) {client.closeEverything();}
+        model = new TetrisModel(client); // create a model
+        curr = new PlayingState(observer, client);
         scanner.close();
         client.listener();
         client.sendName();
-        //client.getNextPiece();
+        launch();
     }
 
     @Override
     public void start(Stage primaryStage) {
-        this.model = new TetrisModel(this); // create a model
-        this.view = new TetrisView(model, primaryStage); //tie the model to the view
-        this.model.startGame(); //begin
+        this.view = new TetrisView(model, primaryStage, this); //tie the model to the view
     }
 
     public void sendName(){
         try {
-            writer.write(this.name);
+            writer.write(name);
             writer.newLine();
             writer.flush();
         }
@@ -102,7 +100,7 @@ public class Client extends Application {
     public void update(String message){
         try {
             int temp = message.indexOf("|");
-            writer.write(this.name + message.substring(temp + 1));
+            writer.write(name + message.substring(temp + 1));
             writer.newLine();
             writer.flush();
         }
@@ -114,9 +112,11 @@ public class Client extends Application {
             writer.write("eliminated|");
             writer.newLine();
             writer.flush();
+            curr = new EliminatedState(observer, this);
         }
         catch (Exception e) {closeEverything();}
     }
+
 
 
 
@@ -126,10 +126,22 @@ public class Client extends Application {
      */
     public void placedPiece(int index, int score, int rowsCleared) {
         try {
-            writer.write("placedPiece|" + Integer.toString(index) + "|" + Integer.toString(score) + "|" + Integer.toString(rowsCleared));
+            writer.write("placedPiece" + Integer.toString(index) + "|" + Integer.toString(score) + "|" + Integer.toString(rowsCleared));
             writer.newLine();
             writer.flush();
         }
         catch (Exception e) {closeEverything();}
+    }
+
+    public void decrementIndex() {
+        model.index -= 1;
+    }
+
+    public void setStats(String stats) {
+        model.stats = stats.replace("},","\n").replace("=", ":").replace("{","\n").replace("}","\n");
+    }
+
+    public String getStats() {
+        return model.stats;
     }
 }

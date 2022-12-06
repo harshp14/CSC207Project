@@ -29,5 +29,11 @@ public class TetrisPieceObservable {
     /*
      * Checks if a new piece needs to be added to the array
      */
-    public void checkSize(int index) {if (pieces.size() - 2  < index) {addPiece();}}
+    public boolean checkSize(int index) {
+        if (pieces.size() - 2  > index) {
+            addPiece();
+            return true;
+        }
+        return false;
+    }
 }
