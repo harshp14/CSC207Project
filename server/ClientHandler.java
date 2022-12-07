@@ -72,9 +72,10 @@ public class ClientHandler implements Runnable {
         if (message.startsWith("updateStats|")) {
             this.server.stats.updateStats(this.name + ":" + message);
         } else if (message.startsWith("placedPiece")) {
+            this.server.stats.updateStats(this.name + "|" + message.substring(message.indexOf("|") + 1));
+            this.server.placedPiece(Integer.parseInt(message.substring(11, message.indexOf("|"))), this.name);
             this.server.stats.placedPiece(this.name);
         } else {
-            this.server.readInput(this.name + ":" + message);
             if (Objects.equals(message, "eliminated|")) {
                 this.spectate();
             }
