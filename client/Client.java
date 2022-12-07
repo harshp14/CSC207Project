@@ -5,8 +5,6 @@ import observer.TetrisPieceObserver;
 import tetris.TetrisModel;
 import tetris.TetrisView;
 
-
-
 import java.util.*;
 import java.net.*;
 import java.io.*;
@@ -15,52 +13,37 @@ import java.io.*;
 
 
 public class Client extends Application {
-    private Socket socket;
-    private BufferedReader reader;
-    private BufferedWriter writer;
-    private String name;
-    private Integer index = 0;
+    private static Socket socket;
+    private static BufferedReader reader;
+    private static BufferedWriter writer;
+    private static String name;
 
-    private TetrisModel model;
+    private static TetrisModel model;
     private TetrisView view;
+    public static SuperState curr;
 
-    public TetrisPieceObserver observer;
-
-    public SuperState curr;
-
-    /**
-     * Constructor
-     *
-     * @param name
-     * @param socket
-     */
-    public Client(Socket socket, String name) {
-
-        try {
-            this.socket = socket;
-            this.reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            this.writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
-            this.name = name;
-            this.curr = new PlayingState(this.writer, this.observer, this.socket, this.reader);
-        }
-        catch (IOException e) {closeEverything();}
+    public static TetrisPieceObserver observer = new TetrisPieceObserver();
+    public Client() {
     }
 
 
-    /**
-     * Listens for a message from the server and sends the message to the current player state
-     *
-     */
+
     public void listener() {
         new Thread(new Runnable() {
             @Override
             public void run() {
                 String message;
 
+
                 while (socket.isConnected())  {
                     try {
                         message = reader.readLine();
-                        curr.listening(message); //Print message that is received from server (Do something with it later)
+                        if(message.equals("startGame|")){
+                            model.startGame();
+                        }
+                        else {
+                            curr.listening(message);
+                        }
                     }
                     catch (IOException e) {closeEverything();}
                 }
@@ -68,48 +51,44 @@ public class Client extends Application {
         }).start();
     }
 
-    /**
-     * Closes the reader, writer and socket
-     */
     public void closeEverything() {
         try {
-            if (this.reader != null) {this.reader.close();}
-            if (this.writer != null) {this.writer.close();}
-            if (this.socket != null) {this.socket.close();}
+            if (reader != null) {reader.close();}
+            if (writer != null) {writer.close();}
+            if (socket != null) {socket.close();}
         }
         catch (IOException e) {e.printStackTrace(); }
     }
 
 
-    /**
-     * Starts the game
-     */
-    public static void run(String[] args){
-        launch(args);
-    }
-
-
     public static void main(String[] args) throws IOException {
-
 
         Scanner scanner = new Scanner(System.in);
         System.out.println("Please enter a username");
-        String username = scanner.nextLine();
-
-        Socket socket = new Socket("localhost", 4200);
-        Client client = new Client(socket, username);
+        name = scanner.nextLine();
+        Client client = new Client();
+        try {
+            socket = new Socket("localhost", 4200);
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
+        }
+        catch (IOException e) {client.closeEverything();}
+        model = new TetrisModel(client); // create a model
+        curr = new PlayingState(observer, client);
         scanner.close();
         client.listener();
         client.sendName();
-
+        launch();
     }
 
-    /**
-     * Sends the name to the server
-     */
+    @Override
+    public void start(Stage primaryStage) {
+        this.view = new TetrisView(model, primaryStage, this); //tie the model to the view
+    }
+
     public void sendName(){
         try {
-            writer.write(this.name);
+            writer.write(name);
             writer.newLine();
             writer.flush();
         }
@@ -117,30 +96,52 @@ public class Client extends Application {
 
     }
 
-    /**
-     * Helper function for run when the game starts
-     */
-    @Override
-    public void start(Stage primaryStage) {
-        this.model = new TetrisModel(); // create a model
-        this.view = new TetrisView(model, primaryStage); //tie the model to the view
-        this.model.startGame(); //begin
+
+    public void update(String message){
+        try {
+            int temp = message.indexOf("|");
+            writer.write(name + message.substring(temp + 1));
+            writer.newLine();
+            writer.flush();
+        }
+        catch (Exception e) {closeEverything();}
+    }
+
+    public void getsEliminated(){
+        try {
+            writer.write("eliminated|");
+            writer.newLine();
+            writer.flush();
+            curr = new EliminatedState(observer, this);
+        }
+        catch (Exception e) {closeEverything();}
     }
 
 
-    /**
-     * Player is eliminated and the player state should change to eliminated
+
+
+    /*
+     * Notifies the server that a piece was placed, and updates score accordingly
+     * @param
      */
-    public void elimnated(){
-        this.curr = new EliminatedState(this.writer, this.observer, this.socket, this.reader);
+    public void placedPiece(int index, int score, int rowsCleared) {
+        try {
+            writer.write("placedPiece" + Integer.toString(index) + "|" + Integer.toString(score) + "|" + Integer.toString(rowsCleared));
+            writer.newLine();
+            writer.flush();
+        }
+        catch (Exception e) {closeEverything();}
     }
 
+    public void decrementIndex() {
+        model.index -= 1;
+    }
 
+    public void setStats(String stats) {
+        model.stats = stats.replace("},","\n").replace("=", ":").replace("{","\n").replace("}","\n");
+    }
 
-
-
-
-
-
-
+    public String getStats() {
+        return model.stats;
+    }
 }
