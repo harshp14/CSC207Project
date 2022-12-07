@@ -62,7 +62,7 @@ public class observerTests {
         //Tell the observable that a player is currently on the second piece
         observable.checkSize(2);
 
-        assertEquals(observable.pieces.size(), 4);
+        assertEquals(observable.pieces.size(), 3);
 
         //Tell the observable that a player is on the first piece
         observable.checkSize(0);
