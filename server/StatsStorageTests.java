@@ -15,6 +15,7 @@ public class StatsStorageTests {
         HashMap<String, Integer> stats = new HashMap<>();
         stats.put("rowsCleared", 0);
         stats.put("piecesPlaced", 0);
+        stats.put("points", 0);
         HashMap<String, HashMap<String, Integer>> target = new HashMap<String, HashMap<String, Integer>>();
         target.put("Player1", (HashMap<String, Integer>) stats.clone());
         target.put("Player2", (HashMap<String, Integer>) stats.clone());
@@ -26,14 +27,16 @@ public class StatsStorageTests {
         StatsStorage output = new StatsStorage();
         output.addPlayer("Player1");
         output.addPlayer("Player2");
-        output.updateStats("Player2:updateStats|3|25");
+        output.updateStats("Player2|25|3");
         HashMap<String, Integer> stats = new HashMap<>();
         stats.put("rowsCleared", 0);
         stats.put("piecesPlaced", 0);
+        stats.put("points", 0);
         HashMap<String, HashMap<String, Integer>> target = new HashMap<String, HashMap<String, Integer>>();
         target.put("Player1", (HashMap<String, Integer>) stats.clone());
         stats.put("rowsCleared", 3);
-        stats.put("piecesPlaced", 25);
+        stats.put("piecesPlaced", 0);
+        stats.put("points", 25);
         target.put("Player2", (HashMap<String, Integer>) stats.clone());
         assertEquals(output.stats, target, "Error when testing updateStats.");
     }
@@ -51,10 +54,12 @@ public class StatsStorageTests {
         HashMap<String, Integer> stats = new HashMap<>();
         stats.put("rowsCleared", 0);
         stats.put("piecesPlaced", 2);
+        stats.put("points", 0);
         HashMap<String, HashMap<String, Integer>> target = new HashMap<String, HashMap<String, Integer>>();
         target.put("Player1", (HashMap<String, Integer>) stats.clone());
         stats.put("rowsCleared", 0);
         stats.put("piecesPlaced", 3);
+        stats.put("points", 0);
         target.put("Player2", (HashMap<String, Integer>) stats.clone());
         assertEquals(output.stats, target, "Error when testing placedPiece.");
     }
