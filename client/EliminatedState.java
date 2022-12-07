@@ -8,44 +8,22 @@ import java.io.IOException;
 import java.net.Socket;
 
 public class EliminatedState implements SuperState{
-    private Socket socket;
+    private Client client;
     private BufferedReader reader;
     private BufferedWriter writer;
     public TetrisPieceObserver observer;
 
-    /**
-     * Constructor
-     *
-     * @param writer communicates with the server
-     * @param observer observer
-     * @param socket socket for the server
-     * @param reader contains message from the server
-     */
-    public EliminatedState(BufferedWriter writer, TetrisPieceObserver observer, Socket socket, BufferedReader reader){
-        this.writer = writer;
+    public EliminatedState(TetrisPieceObserver observer, Client client){
         this.observer = observer;
-        this.socket = socket;
-        this.reader = reader;
+        this.client = client;
+        getStats("Eliminated");
     }
 
-    /**
-     * Determines what the message represents and runs a specific method depending on the message
-     *
-     * @param message message sent from the server
-     */
     public void listening(String message){
-        if (message.substring(0, 5) == "Stats"){
-            getStats(message);
+        if (message.substring(0, 10).equals("getStats|{")){
+            getStats(message.substring(10));
         }
     }
 
-    /**
-     * Takes the stats from the message and displays them to the player
-     *
-     * @param message message sent from the server that contains the stats
-     */
-    public void getStats(String message){
-
-    }
-
+    public void getStats(String message){this.client.setStats(message);}
 }
