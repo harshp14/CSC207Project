@@ -1,5 +1,6 @@
 package tetris;
 
+import client.Client;
 import decorator.*;
 import tetris.TetrisModel.MoveType;
 import javafx.animation.KeyFrame;
@@ -29,7 +30,6 @@ import javafx.util.Duration;
  */
 public class TetrisView {
 
-
     TetrisModel model; //reference to model
     Stage stage;
     Colour colour = new Colour();
@@ -37,6 +37,8 @@ public class TetrisView {
     Button classicButton, deuteranopiaButton, protanomalyButton, deuteranomalyButton; //buttons for functions
     Label scoreLabel = new Label("");
     Label gameModeLabel = new Label("");
+    
+    Client client;
 
     BorderPane borderPane;
     Canvas canvas;
@@ -56,10 +58,15 @@ public class TetrisView {
      * @param stage application stage
      */
 
-    public TetrisView(TetrisModel model, Stage stage) {
+    public TetrisView(TetrisModel model, Stage stage, Client client) {
         this.model = model;
         this.stage = stage;
+        this.client = client;
         initUI();
+    }
+
+    public void updateStats(String stats){
+        scoreLabel.setText(stats);
     }
 
     /**
@@ -137,10 +144,9 @@ public class TetrisView {
         controls.setAlignment(Pos.CENTER);
 
 
-        VBox scoreBox = new VBox(20, scoreLabel, gameModeLabel, pilotButtonHuman, pilotButtonComputer);
+        VBox scoreBox = new VBox(20, scoreLabel);
         scoreBox.setPadding(new Insets(20, 20, 20, 20));
 
-        toggleGroup.selectedToggleProperty().addListener((observable, oldVal, newVal) -> swapPilot(newVal));
 
         //timeline structures the animation, and speed between application "ticks"
         timeline = new Timeline(new KeyFrame(Duration.seconds(0.25), e -> updateBoard()));
@@ -189,7 +195,7 @@ public class TetrisView {
         });
 
         borderPane.setTop(controls);
-        borderPane.setRight(scoreBox);
+        borderPane.setLeft(scoreBox);
         borderPane.setCenter(canvas);
 
         var scene = new Scene(borderPane, 800, 800);
@@ -197,23 +203,7 @@ public class TetrisView {
         this.stage.show();
     }
 
-    /**
-     * Get user selection of "autopilot" or human player
-     *
-     * @param value toggle selector on UI
-     */
-    private void swapPilot(Toggle value) {
-        RadioButton chk = (RadioButton)value.getToggleGroup().getSelectedToggle();
-        String strVal = chk.getText();
-        if (strVal.equals("Computer (Default)")){
-            this.model.setAutoPilotMode();
-            gameModeLabel.setText("Player is: Computer (Default)");
-        } else if (strVal.equals("Human")) {
-            this.model.setHumanPilotMode();
-            gameModeLabel.setText("Player is: Human");
-        }
-        borderPane.requestFocus(); //give the focus back to the pane with the blocks.
-    }
+
 
     /**
      * Update board (paint pieces and score info)
@@ -230,8 +220,12 @@ public class TetrisView {
      * Update score on UI
      */
     private void updateScore() {
-        if (this.paused != true) {
+        if (model.gameOn) {
             scoreLabel.setText("Score is: " + model.getScore() + "\nPieces placed:" + model.getCount());
+        }
+        
+        else {
+            scoreLabel.setText(this.client.getStats());
         }
     }
 
