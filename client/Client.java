@@ -68,7 +68,7 @@ public class Client extends Application {
         name = scanner.nextLine();
         Client client = new Client();
         try {
-            socket = new Socket("localhost", 4200);
+            socket = new Socket("192.168.183.61", 4200); //The host IP should be chamged based on the user, currently the IPv4 address of Harsh's phone
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
         }
