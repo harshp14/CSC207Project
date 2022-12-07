@@ -1,6 +1,6 @@
 package tetris;
 
-import tetris.TetrisModel;
+import decorator.*;
 import tetris.TetrisModel.MoveType;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -32,8 +32,9 @@ public class TetrisView {
 
     TetrisModel model; //reference to model
     Stage stage;
-
-    Button startButton, stopButton, loadButton, saveButton, newButton; //buttons for functions
+    Colour colour = new Colour();
+    gameDecorator decorator = new classicDecorator(colour);
+    Button classicButton, deuteranopiaButton, protanomalyButton, deuteranomalyButton; //buttons for functions
     Label scoreLabel = new Label("");
     Label gameModeLabel = new Label("");
 
@@ -106,52 +107,38 @@ public class TetrisView {
         scoreLabel.setFont(new Font(20));
         scoreLabel.setStyle("-fx-text-fill: #e8e6e3");
 
-        //add buttons
-        startButton = new Button("Start");
-        startButton.setId("Start");
-        startButton.setPrefSize(150, 50);
-        startButton.setFont(new Font(12));
-        startButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
+        //added buttons for each choice in colour decorator
+        classicButton = new Button("Classic");
+        classicButton.setId("classic");
+        classicButton.setPrefSize(150, 50);
+        classicButton.setFont(new Font(12));
+        classicButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
 
-        stopButton = new Button("Stop");
-        stopButton.setId("Start");
-        stopButton.setPrefSize(150, 50);
-        stopButton.setFont(new Font(12));
-        stopButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
+        deuteranomalyButton = new Button("Deuteranomaly");
+        deuteranomalyButton.setId("Start");
+        deuteranomalyButton.setPrefSize(150, 50);
+        deuteranomalyButton.setFont(new Font(12));
+        deuteranomalyButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
 
-        saveButton = new Button("Save");
-        saveButton.setId("Save");
-        saveButton.setPrefSize(150, 50);
-        saveButton.setFont(new Font(12));
-        saveButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
+        deuteranopiaButton = new Button("Deuteranopia");
+        deuteranopiaButton.setId("Save");
+        deuteranopiaButton.setPrefSize(150, 50);
+        deuteranopiaButton.setFont(new Font(12));
+        deuteranopiaButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
 
-        loadButton = new Button("Load");
-        loadButton.setId("Load");
-        loadButton.setPrefSize(150, 50);
-        loadButton.setFont(new Font(12));
-        loadButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
+        protanomalyButton = new Button("Protanomaly");
+        protanomalyButton.setId("Load");
+        protanomalyButton.setPrefSize(150, 50);
+        protanomalyButton.setFont(new Font(12));
+        protanomalyButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
 
-        newButton = new Button("New Game");
-        newButton.setId("New");
-        newButton.setPrefSize(150, 50);
-        newButton.setFont(new Font(12));
-        newButton.setStyle("-fx-background-color: #17871b; -fx-text-fill: white;");
-
-        HBox controls = new HBox(20, saveButton, loadButton, newButton, startButton, stopButton);
+        HBox controls = new HBox(20, protanomalyButton, classicButton, deuteranomalyButton, deuteranopiaButton);
         controls.setPadding(new Insets(20, 20, 20, 20));
         controls.setAlignment(Pos.CENTER);
 
-        Slider slider = new Slider(0, 100, 50);
-        slider.setShowTickLabels(true);
-        slider.setStyle("-fx-control-inner-background: palegreen;");
-
-        VBox vBox = new VBox(20, slider);
-        vBox.setPadding(new Insets(20, 20, 20, 20));
-        vBox.setAlignment(Pos.TOP_CENTER);
 
         VBox scoreBox = new VBox(20, scoreLabel, gameModeLabel, pilotButtonHuman, pilotButtonComputer);
         scoreBox.setPadding(new Insets(20, 20, 20, 20));
-        vBox.setAlignment(Pos.TOP_CENTER);
 
         toggleGroup.selectedToggleProperty().addListener((observable, oldVal, newVal) -> swapPilot(newVal));
 
@@ -160,57 +147,29 @@ public class TetrisView {
         timeline.setCycleCount(Timeline.INDEFINITE);
         timeline.play();
 
-        //configure this such that you start a new game when the user hits the newButton
-        //Make sure to return the focus to the borderPane once you're done!
-        newButton.setOnAction(e -> {
-            this.model.newGame();
-            borderPane.requestFocus();
+        //Uses the classicDecorator on the board and blocks
+        classicButton.setOnAction(e -> {
+            decorator = new classicDecorator(colour);
+            paintBoard(decorator);
+        });
+        //Uses the deuteranopiaDecorator on the board and blocks
+        deuteranopiaButton.setOnAction(e -> {
+            decorator = new deuteranopiaDecorator(colour);
+            paintBoard(decorator);
+        });
+        //Uses the deuteranomalyDecorator on the board and blocks
+        deuteranomalyButton.setOnAction(e -> {
+            decorator = new deuteranomalyDecorator(colour);
+            paintBoard(decorator);
+        });
+        //Uses the protanomalyDecorator on the board and blocks
+        protanomalyButton.setOnAction(e -> {
+            decorator = new protanomalyDecorator(colour);
+            paintBoard(decorator);
         });
 
-        //configure this such that you restart the game when the user hits the startButton
-        //Make sure to return the focus to the borderPane once you're done!
-        startButton.setOnAction(e -> {
-            this.model.unpauseGame();
-            borderPane.requestFocus();
-        });
 
-        //configure this such that you pause the game when the user hits the stopButton
-        //Make sure to return the focus to the borderPane once you're done!
-        stopButton.setOnAction(e -> {
-            this.model.stopGame();
-            borderPane.requestFocus();
-        });
 
-        //configure this such that the save view pops up when the saveButton is pressed.
-        //Make sure to return the focus to the borderPane once you're done!
-        saveButton.setOnAction(e -> {
-            createSaveView();
-            borderPane.requestFocus();
-        });
-
-        //configure this such that the load view pops up when the loadButton is pressed.
-        //Make sure to return the focus to the borderPane once you're done!
-        loadButton.setOnAction(e -> {
-            createLoadView();
-            borderPane.requestFocus();
-        });
-        //configure this such that you adjust the speed of the timeline to a value that
-        //ranges between 0 and 3 times the default rate per model tick.  Make sure to return the
-        //focus to the borderPane once you're done!
-        slider.setOnMouseReleased(e -> {
-            if (e.getX() < 0) {
-                timeline.setRate(0.0);
-            }
-
-            else if (e.getX() > 750) {
-                timeline.setRate(3.0);
-            }
-
-            else {
-                timeline.setRate(((3 *e.getX()) / 750));
-            }
-
-        });
 
         //configure this such that you can use controls to rotate and place pieces as you like!!
         //You'll want to respond to tie key presses to these moves:
@@ -232,7 +191,6 @@ public class TetrisView {
         borderPane.setTop(controls);
         borderPane.setRight(scoreBox);
         borderPane.setCenter(canvas);
-        borderPane.setBottom(vBox);
 
         var scene = new Scene(borderPane, 800, 800);
         this.stage.setScene(scene);
@@ -262,7 +220,7 @@ public class TetrisView {
      */
     private void updateBoard() {
         if (this.paused != true) {
-            paintBoard();
+            paintBoard(decorator);
             this.model.modelTick(TetrisModel.MoveType.DOWN);
             updateScore();
         }
@@ -296,11 +254,11 @@ public class TetrisView {
     /**
      * Draw the board
      */
-    public void paintBoard() {
-
+    public void paintBoard(gameDecorator decorator) {
         // Draw a rectangle around the whole screen
-        gc.setStroke(Color.GREEN);
-        gc.setFill(Color.GREEN);
+
+        gc.setStroke(decorator.getColourBackground());
+        gc.setFill(decorator.getColourBackground());
         gc.fillRect(0, 0, this.width-1, this.height-1);
 
         // Draw the line separating the top area on the screen
@@ -321,9 +279,9 @@ public class TetrisView {
             final int yHeight = this.model.getBoard().getColumnHeight(x);
             for (y=0; y<yHeight; y++) {
                 if (this.model.getBoard().getGrid(x, y)) {
-                    gc.setFill(Color.RED);
+                    gc.setFill(decorator.getColourBlocks());
                     gc.fillRect(left+1, yPixel(y)+1, dx, dy);
-                    gc.setFill(Color.GREEN);
+                    gc.setFill(decorator.getColourBlocks());
                 }
             }
         }
